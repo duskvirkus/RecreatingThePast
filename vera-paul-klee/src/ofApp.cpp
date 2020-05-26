@@ -28,12 +28,12 @@ void ofApp::draw() {
   if (showDebug) {
     ofNoFill();
 
-    ofSetColor(0, 0, 255, 30);
+    ofSetColor(0, 0, 255, 50);
     for (const auto &cell : layers[0]) {
       cell.drawDebug();
     }
 
-    ofSetColor(0, 255, 0, 30);
+    ofSetColor(0, 255, 0, 100);
     for (const auto &cell : layers[1]) {
       cell.drawDebug();
     }
