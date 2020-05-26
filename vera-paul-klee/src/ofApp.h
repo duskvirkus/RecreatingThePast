@@ -1,8 +1,9 @@
 #pragma once
 
+#include "Cell.h"
+#include "ofMain.h"
 #include "ofxGui.h"
 #include "ofxLaunchControllers.h"
-#include "ofMain.h"
 
 class ofApp : public ofBaseApp {
 public:
@@ -12,9 +13,13 @@ public:
   ofParameter<bool> showControls;
   ofParameter<bool> showDebug;
 
+  vector<vector<Cell>> layers;
+
   void setup();
   void update();
   void draw();
 
   void title();
+
+  void generateCells(vector<Cell> &cells, int cellNum);
 };
