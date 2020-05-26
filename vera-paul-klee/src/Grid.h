@@ -8,6 +8,8 @@ public:
   void setup(size_t rows, size_t cols, float x, float y, float w, float h);
   void draw();
   Cell getCell(size_t x, size_t y, size_t w, size_t h);
+  size_t getRowCount() const;
+  size_t getColumnCount() const;
 
 private:
   size_t m_rows;

@@ -7,6 +7,8 @@ constexpr const char *RECREATOR = "Violet Graham";
 void ofApp::setup() {
   ofBackground(255);
 
+  dl.setup();
+
   gui.setup();
   gui.add(showControls.set("Show Controls", false));
   gui.add(showGrid.set("Show Grid", false));
@@ -17,15 +19,19 @@ void ofApp::setup() {
 
   grid.setup(30, 30, 0, 0, ofGetWidth(), ofGetHeight());
 
-  groups.emplace_back(&grid, 5, 3, 2, 1, [](Cell cell) {
-    ofPushMatrix();
-    ofTranslate(cell.x, cell.y);
-    for (int i = 0; i < 5; i++) {
-      int x = ofMap(i, 0, 5, 0, cell.w);
-      ofDrawLine(x, 0, x, cell.h);
+  for (int i = 0; i < 400; ++i) {
+    const int width = ofRandom(1) < 0.5 ? 1 : 2;
+    const int height = width == 1 ? 2 : 1;
+    int posX = ofRandom(grid.getRowCount() - (width - 1));
+    int posY = ofRandom(grid.getColumnCount() - (height - 1));
+    if (width == 2) {
+      posX &= ~1;
     }
-    ofPopMatrix();
-  });
+    if (height == 2) {
+      posY &= ~1;
+    }
+    groups.emplace_back(&grid, posX, posY, width, height, dl.getRandom());
+  }
 }
 
 void ofApp::update() { title(); }
