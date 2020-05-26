@@ -20,22 +20,39 @@ void ofApp::setup() {
     generateCells(cells, 15);
     layers.push_back(cells);
   }
+
+  for (size_t i = 0; i < layers[0].size(); ++i) {
+    layers[0][i].addDesign0(Design([](float width, float height) {
+      ofDrawLine(-width / 2, -height / 2, width / 2, height / 2);
+    }));
+    layers[0][i].addDesign1(Design([](float width, float height) {
+      ofDrawLine(-width / 2, -height / 2, width / 2, height / 2);
+    }));
+  }
 }
 
 void ofApp::update() { title(); }
 
 void ofApp::draw() {
+
+  ofSetColor(0);
+  for (const auto &layer : layers) {
+    for (const auto &cell : layer) {
+      cell.draw(false);
+    }
+  }
+
   if (showDebug) {
     ofNoFill();
 
     ofSetColor(0, 0, 255, 50);
     for (const auto &cell : layers[0]) {
-      cell.drawDebug();
+      cell.draw(true);
     }
 
     ofSetColor(0, 255, 0, 100);
     for (const auto &cell : layers[1]) {
-      cell.drawDebug();
+      cell.draw(true);
     }
   }
   if (showControls) {
