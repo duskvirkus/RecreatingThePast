@@ -2,7 +2,11 @@
 
 #include "ofxGui.h"
 #include "ofxLaunchControllers.h"
+#include "Grid.h"
+#include "LineGroup.h"
 #include "ofMain.h"
+#include "Cell.h"
+#include "DesignLibrary.h"
 
 class ofApp : public ofBaseApp {
 public:
@@ -10,7 +14,11 @@ public:
   ofxPanel gui;
 
   ofParameter<bool> showControls;
-  ofParameter<bool> showDebug;
+  ofParameter<bool> showGrid;
+
+  DesignLibrary dl;
+  Grid grid;
+  vector<LineGroup> groups;
 
   void setup();
   void update();
