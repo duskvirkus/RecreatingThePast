@@ -13,6 +13,7 @@ public:
   ofParameter<bool> showControls;
   ofParameter<bool> showDebug;
 
+  vector<function<void(float, float)>> blueprints;
   vector<vector<Cell>> layers;
 
   void setup();
@@ -22,4 +23,5 @@ public:
   void title();
 
   void generateCells(vector<Cell> &cells, int cellNum);
+  void createBlueprints();
 };

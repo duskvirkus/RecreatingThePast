@@ -21,13 +21,13 @@ void ofApp::setup() {
     layers.push_back(cells);
   }
 
+  createBlueprints();
+
   for (size_t i = 0; i < layers[0].size(); ++i) {
-    layers[0][i].addDesign0(Design([](float width, float height) {
-      ofDrawLine(-width / 2, -height / 2, width / 2, height / 2);
-    }));
-    layers[0][i].addDesign1(Design([](float width, float height) {
-      ofDrawLine(-width / 2, -height / 2, width / 2, height / 2);
-    }));
+    layers[0][i].addDesign0(
+        Design(blueprints[int(ofRandom(blueprints.size()))]));
+    layers[0][i].addDesign1(
+        Design(blueprints[int(ofRandom(blueprints.size()))]));
   }
 }
 
@@ -76,4 +76,23 @@ void ofApp::generateCells(vector<Cell> &cells, int cellNum) {
           cellSize);
     }
   }
+}
+
+#define addDiagonalBlueprint(numLines)                                         \
+  blueprints.push_back([](float width, float height) {                         \
+    for (int i = 0; i < numLines; ++i) {                                       \
+      float x = ofLerp(0, width, static_cast<float>(i) / numLines);            \
+      float y = ofLerp(0, height, static_cast<float>(i) / numLines);           \
+      ofDrawLine(x - width / 2, -height / 2, width / 2, height / 2 - y);       \
+    }                                                                          \
+  });
+
+void ofApp::createBlueprints() {
+
+  addDiagonalBlueprint(1);
+  addDiagonalBlueprint(2);
+  addDiagonalBlueprint(3);
+  addDiagonalBlueprint(5);
+  addDiagonalBlueprint(7);
+  addDiagonalBlueprint(11);
 }
