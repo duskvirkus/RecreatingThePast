@@ -12,8 +12,16 @@ public:
 
   ofParameter<bool> showControls;
   ofParameter<bool> showDebug;
+  ofParameter<bool> regenerate;
 
   vector<function<void(float, float)>> blueprints;
+
+  enum LayerName {
+    DiagonalLines = 0,
+    DiagonalBlocks,
+    Triangles,
+    Full,
+  };
   vector<vector<Cell>> layers;
 
   void setup();
@@ -24,4 +32,5 @@ public:
 
   void generateCells(vector<Cell> &cells, int cellNum);
   void createBlueprints();
+  void generateDesigns();
 };

@@ -7,13 +7,17 @@ constexpr const char *RECREATOR = "Violet Graham";
 void ofApp::setup() {
   ofBackground(255);
 
+  // ofDisableAntiAliasing();
+
   gui.setup();
   gui.add(showControls.set("Show Controls", false));
   gui.add(showDebug.set("Show Debug", false));
+  gui.add(regenerate.set("Regenerate", false));
 
   lc.setup();
   lc.toggle(0, showControls);
   lc.toggle(1, showDebug);
+  lc.toggle(2, regenerate);
 
   for (size_t i = 0; i < 2; ++i) {
     vector<Cell> cells;
@@ -23,15 +27,16 @@ void ofApp::setup() {
 
   createBlueprints();
 
-  for (size_t i = 0; i < layers[0].size(); ++i) {
-    layers[0][i].addDesign0(
-        Design(blueprints[int(ofRandom(blueprints.size()))]));
-    layers[0][i].addDesign1(
-        Design(blueprints[int(ofRandom(blueprints.size()))]));
-  }
+  generateDesigns();
 }
 
-void ofApp::update() { title(); }
+void ofApp::update() {
+  title();
+  if (regenerate) {
+    generateDesigns();
+    regenerate = false;
+  }
+}
 
 void ofApp::draw() {
 
@@ -95,4 +100,52 @@ void ofApp::createBlueprints() {
   addDiagonalBlueprint(5);
   addDiagonalBlueprint(7);
   addDiagonalBlueprint(11);
+
+  blueprints.push_back([](float width, float height) {
+    for (int i = 0; i < 7; ++i) {
+      const float x1 = ofMap(i, 0, 6, 0, width / 2);
+      const float y1 = ofMap(i, 0, 6, -height / 2, height / 2);
+      const float x2 = ofMap(i, -1, 6, -width / 2, width / 2);
+      ofDrawLine(x1, y1, x2, height / 2);
+    }
+  });
+}
+
+void ofApp::generateDesigns() {
+  vector<vector<Design>> possibleDesigns;
+
+  for (int i = 0; i < 4; ++i) {
+
+    for (size_t j = 0; j < blueprints.size(); ++j) {
+      vector<Design> d;
+
+      d.emplace_back(blueprints[j], i * 90);
+
+      possibleDesigns.push_back(d);
+    }
+  }
+
+  for (size_t k = 0; k < layers.size(); ++k) {
+    for (size_t i = 0; i < layers[k].size(); ++i) {
+      if (ofRandom(1) < 0.6) {
+        layers[k][i].setDesigns0(
+            possibleDesigns[int(ofRandom(possibleDesigns.size()))]);
+      } else {
+        layers[k][i].clearDesigns0();
+      }
+      if (ofRandom(1) < 0.6) {
+        layers[k][i].setDesigns1(
+            possibleDesigns[int(ofRandom(possibleDesigns.size()))]);
+      } else {
+        layers[k][i].clearDesigns1();
+      }
+    }
+  }
+
+  // for (size_t i = 0; i < layers[0].size(); ++i) {
+  //   layers[0][i].addDesign0(Design(blueprints[int(ofRandom(blueprints.size()))],
+  //                                  int(ofRandom(4)) * 90));
+  //   layers[0][i].addDesign1(Design(blueprints[int(ofRandom(blueprints.size()))],
+  //                                  int(ofRandom(4)) * 90));
+  // }
 }

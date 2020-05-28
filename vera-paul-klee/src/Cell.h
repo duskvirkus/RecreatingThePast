@@ -14,6 +14,12 @@ public:
   void addDesign0(Design design);
   void addDesign1(Design design);
 
+  void setDesigns0(const vector<Design> &designs);
+  void setDesigns1(const vector<Design> &designs);
+
+  void clearDesigns0();
+  void clearDesigns1();
+
 private:
   ofVec2f m_position;
   float m_size;

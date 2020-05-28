@@ -2,7 +2,15 @@
 
 Cell::Cell(const ofVec2f &position, float size)
     : m_position(move(position)), m_size(size) {
-  m_type = static_cast<CellType>(ofRandom(3));
+  // m_type = static_cast<CellType>(ofRandom(3));
+  const auto rand = ofRandom(1);
+  if (rand < 0.1) {
+    m_type = FULL;
+  } else if (rand > 0.1 && rand < 0.55) {
+    m_type = HORIZONTAL;
+  } else {
+    m_type = VERTICAL;
+  }
 }
 
 void Cell::draw(bool debug) const {
@@ -79,3 +87,15 @@ void Cell::draw(bool debug) const {
 void Cell::addDesign0(Design design) { m_designs0.push_back(design); }
 
 void Cell::addDesign1(Design design) { m_designs1.push_back(design); }
+
+void Cell::setDesigns0(const vector<Design> &designs) {
+  m_designs0 = move(designs);
+}
+
+void Cell::setDesigns1(const vector<Design> &designs) {
+  m_designs1 = move(designs);
+}
+
+void Cell::clearDesigns0() { m_designs0.clear(); }
+
+void Cell::clearDesigns1() { m_designs1.clear(); }

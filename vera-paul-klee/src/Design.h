@@ -4,7 +4,7 @@
 
 class Design {
 public:
-  Design(function<void(float, float)> draw);
+  Design(function<void(float, float)> draw, int rotation);
 
   int rotation() const;
   function<void(float, float)> getDraw() const;
