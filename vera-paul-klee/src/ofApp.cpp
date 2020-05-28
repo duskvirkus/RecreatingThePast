@@ -13,29 +13,50 @@ void ofApp::setup() {
   gui.add(showControls.set("Show Controls", false));
   gui.add(showDebug.set("Show Debug", false));
   gui.add(regenerate.set("Regenerate", false));
+  gui.add(linesProbability.set("Lines", 0.3, 0, 1));
+  gui.add(blocksProbability.set("Blocks", 0.5, 0, 1));
+  gui.add(trianglesProbability.set("Triangles", 0.05, 0, 1));
+  gui.add(fullProbability.set("Full", 0.05, 0, 1));
 
   lc.setup();
   lc.toggle(0, showControls);
   lc.toggle(1, showDebug);
   lc.toggle(2, regenerate);
 
-  for (size_t i = 0; i < 2; ++i) {
-    vector<Cell> cells;
-    generateCells(cells, 15);
-    layers.push_back(cells);
-  }
+  lc.knob(0, linesProbability);
+  lc.knob(1, blocksProbability);
+  lc.knob(2, trianglesProbability);
+  lc.knob(3, fullProbability);
+
+  proabilities.push_back(0.3);
+  proabilities.push_back(0.5);
+  proabilities.push_back(0.05);
+  proabilities.push_back(0.05);
+
+  createLayers();
 
   createBlueprints();
 
-  generateDesigns();
+  createDesignSets();
+
+  for (size_t i = 0; i < LayerName::max; ++i) {
+    populateLayer(static_cast<LayerName>(i));
+  }
 }
 
 void ofApp::update() {
   title();
   if (regenerate) {
-    generateDesigns();
+    for (size_t i = 0; i < LayerName::max; ++i) {
+      populateLayer(static_cast<LayerName>(i));
+    }
     regenerate = false;
   }
+
+  proabilities[0] = linesProbability;
+  proabilities[1] = blocksProbability;
+  proabilities[2] = trianglesProbability;
+  proabilities[3] = fullProbability;
 }
 
 void ofApp::draw() {
@@ -72,13 +93,29 @@ void ofApp::title() {
   ofSetWindowTitle(titleStream.str());
 }
 
-void ofApp::generateCells(vector<Cell> &cells, int cellNum) {
+void ofApp::createLayers() {
+  for (size_t i = 0; i < LayerName::max; ++i) {
+    vector<Cell> cells;
+    generateCells(cells, 15, i == LayerName::Full);
+    layers.push_back(cells);
+  }
+}
+
+void ofApp::generateCells(vector<Cell> &cells, int cellNum, bool fullCells) {
   const float cellSize = ofGetWidth() / static_cast<float>(cellNum);
   for (int i = 0; i < cellNum; ++i) {
     for (int j = 0; j < cellNum; ++j) {
-      cells.emplace_back(
-          ofVec2f(i * cellSize + cellSize / 2, j * cellSize + cellSize / 2),
-          cellSize);
+      if (fullCells) {
+        cells.emplace_back(
+            ofVec2f(i * cellSize + cellSize / 2, j * cellSize + cellSize / 2),
+            cellSize, Cell::CellType::FULL);
+      } else {
+        cells.emplace_back(
+            ofVec2f(i * cellSize + cellSize / 2, j * cellSize + cellSize / 2),
+            cellSize,
+            ofRandom(1) > 0.5 ? Cell::CellType::HORIZONTAL
+                              : Cell::CellType::VERTICAL);
+      }
     }
   }
 }
@@ -111,41 +148,83 @@ void ofApp::createBlueprints() {
   });
 }
 
-void ofApp::generateDesigns() {
-  vector<vector<Design>> possibleDesigns;
+void ofApp::createDesignSets() {
+  for (size_t i = 0; i <= LayerName::max; ++i) {
+    designSets.emplace_back();
+  }
+
+  // cout << designSets.size() << '\n';
 
   for (int i = 0; i < 4; ++i) {
-
-    for (size_t j = 0; j < blueprints.size(); ++j) {
+    vector<vector<Design>> set;
+    for (size_t j = 0; j < 6; ++j) {
       vector<Design> d;
 
       d.emplace_back(blueprints[j], i * 90);
 
-      possibleDesigns.push_back(d);
+      set.push_back(d);
     }
+    designSets[DiagonalLines] = set;
   }
 
-  for (size_t k = 0; k < layers.size(); ++k) {
-    for (size_t i = 0; i < layers[k].size(); ++i) {
-      if (ofRandom(1) < 0.6) {
-        layers[k][i].setDesigns0(
-            possibleDesigns[int(ofRandom(possibleDesigns.size()))]);
-      } else {
-        layers[k][i].clearDesigns0();
-      }
-      if (ofRandom(1) < 0.6) {
-        layers[k][i].setDesigns1(
-            possibleDesigns[int(ofRandom(possibleDesigns.size()))]);
-      } else {
-        layers[k][i].clearDesigns1();
-      }
+  for (int i = 0; i < 2; ++i) {
+    vector<vector<Design>> set;
+    for (size_t j = 0; j < 6; ++j) {
+      vector<Design> d;
+
+      d.emplace_back(blueprints[j], i * 90);
+      d.emplace_back(blueprints[j], i * 90 + 180);
+
+      set.push_back(d);
     }
+    designSets[DiagonalBlocks] = set;
   }
 
-  // for (size_t i = 0; i < layers[0].size(); ++i) {
-  //   layers[0][i].addDesign0(Design(blueprints[int(ofRandom(blueprints.size()))],
-  //                                  int(ofRandom(4)) * 90));
-  //   layers[0][i].addDesign1(Design(blueprints[int(ofRandom(blueprints.size()))],
-  //                                  int(ofRandom(4)) * 90));
+  {
+    vector<vector<Design>> set;
+    for (int i = 0; i < 4; ++i) {
+      vector<Design> d;
+
+      d.emplace_back(blueprints[6], i * 90);
+
+      set.push_back(d);
+    }
+    designSets[Triangles] = set;
+  }
+
+  designSets[Full] = designSets[DiagonalLines];
+
+  // for (size_t k = 0; k < layers.size(); ++k) {
+  //   for (size_t i = 0; i < layers[k].size(); ++i) {
+  //     if (ofRandom(1) < 0.6) {
+  //       layers[k][i].setDesigns0(
+  //           possibleDesigns[int(ofRandom(possibleDesigns.size()))]);
+  //     } else {
+  //       layers[k][i].clearDesigns0();
+  //     }
+  //     if (ofRandom(1) < 0.6) {
+  //       layers[k][i].setDesigns1(
+  //           possibleDesigns[int(ofRandom(possibleDesigns.size()))]);
+  //     } else {
+  //       layers[k][i].clearDesigns1();
+  //     }
+  //   }
   // }
+}
+
+void ofApp::populateLayer(LayerName layer) {
+  for (size_t i = 0; i < layers[layer].size(); ++i) {
+    if (ofRandom(1) < proabilities[layer]) {
+      layers[layer][i].setDesigns0(
+          designSets[layer][int(ofRandom(designSets[layer].size()))]);
+    } else {
+      layers[layer][i].clearDesigns0();
+    }
+    if (ofRandom(1) < proabilities[layer]) {
+      layers[layer][i].setDesigns1(
+          designSets[layer][int(ofRandom(designSets[layer].size()))]);
+    } else {
+      layers[layer][i].clearDesigns1();
+    }
+  }
 }

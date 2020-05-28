@@ -2,7 +2,6 @@
 
 Cell::Cell(const ofVec2f &position, float size)
     : m_position(move(position)), m_size(size) {
-  // m_type = static_cast<CellType>(ofRandom(3));
   const auto rand = ofRandom(1);
   if (rand < 0.1) {
     m_type = FULL;
@@ -12,6 +11,9 @@ Cell::Cell(const ofVec2f &position, float size)
     m_type = VERTICAL;
   }
 }
+
+Cell::Cell(const ofVec2f &position, float size, CellType type)
+    : m_position(move(position)), m_size(size), m_type(type) {}
 
 void Cell::draw(bool debug) const {
   ofPushMatrix();

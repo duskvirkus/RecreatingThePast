@@ -14,15 +14,25 @@ public:
   ofParameter<bool> showDebug;
   ofParameter<bool> regenerate;
 
-  vector<function<void(float, float)>> blueprints;
+  ofParameter<float> linesProbability;
+  ofParameter<float> blocksProbability;
+  ofParameter<float> trianglesProbability;
+  ofParameter<float> fullProbability;
 
   enum LayerName {
     DiagonalLines = 0,
     DiagonalBlocks,
     Triangles,
     Full,
+    max = Full,
   };
   vector<vector<Cell>> layers;
+
+  vector<function<void(float, float)>> blueprints;
+
+  vector<vector<vector<Design>>> designSets;
+
+  vector<float> proabilities;
 
   void setup();
   void update();
@@ -30,7 +40,10 @@ public:
 
   void title();
 
-  void generateCells(vector<Cell> &cells, int cellNum);
+  void createLayers();
+  void generateCells(vector<Cell> &cells, int cellNum, bool fullCells);
   void createBlueprints();
-  void generateDesigns();
+  void createDesignSets();
+
+  void populateLayer(LayerName layer);
 };

@@ -8,6 +8,7 @@ public:
   enum CellType { FULL = 0, HORIZONTAL, VERTICAL };
 
   Cell(const ofVec2f &position, float size);
+  Cell(const ofVec2f &position, float size, CellType type);
 
   void draw(bool debug) const;
 
