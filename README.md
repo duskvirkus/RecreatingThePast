@@ -16,4 +16,4 @@ My projects while taking [Recreating the Past](https://sfpc.io/recreatingthepast
 
 ### 1961
 
-<iframe title="vimeo-player" src="https://player.vimeo.com/video/427926125" width="640" height="360" frameborder="0" allowfullscreen></iframe>
+[![Thumbnail for 1961 Video on Vimeo](https://i.vimeocdn.com/video/907097726.jpg?mw=900&mh=517)](https://vimeo.com/427926125)
