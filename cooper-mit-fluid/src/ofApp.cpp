@@ -11,7 +11,7 @@ void ofApp::setup() {
 
   ofSetBackgroundAuto(false);
 
-  mit.loadImage("mit-media-lab.png");
+  mit.loadImage("mit-media-lab-color.png");
 
   width = ofGetWidth();
   height = ofGetHeight();
@@ -21,48 +21,17 @@ void ofApp::setup() {
   fluid.dissipation = 0.99;
   fluid.velocityDissipation = 0.99;
 
-  fluid.setGravity(ofVec2f(0.0, 0.05));
-
-  fluid.begin();
-  // ofSetColor(0, 0);
-  // ofSetColor(255);
-  // ofDrawBitmapString("MIT", width * 0.5, height * 0.5);
-  // for (int i = 0; i < width; ++i) {
-  //   ofSetColor(ofRandom(127), ofRandom(127));
-  //   ofDrawLine(i, 0, i, height);
-  // }
-  // for (int i = 0; i < height; ++i) {
-  //   ofSetColor(ofRandom(127), ofRandom(127));
-  //   ofDrawLine(0, i, width, i);
-  // }
-  // paper.draw(0, 0);
-  // ofCircle(width * 0.5, height * 0.35, 40);
-  fluid.end();
-  fluid.setUseObstacles(true);
-
   const auto mitPix = mit.getPixels();
 
-  // for (int i = 0; i <= width / 20; ++i) {
-  //   for (int j = 0; j <= height / 20; ++j) {
-  //     cout << mit.getColor(i + j * width) << '\n';
-  //     if (mit.getColor(i + j * width) == ofColor(0, 0, 0, 255)) {
-  //       cout << "hello" << '\n';
-  //       fluid.addConstantForce(ofPoint(i * 20, j * 20), ofPoint(0, 0),
-  //                              ofFloatColor(0.5, 0.1, 0.0), 5.f);
-  //     }
-  //   }
-  // }
-
-  const int scale = 10;
-  const int yScale = 20;
-  const int xScale = 4;
+  const int yScale = 10; // 10;
+  const int xScale = 5;  // 10;
 
   for (int i = 0; i <= width / xScale; ++i) {
-    for (int j = 0; j <= height / yScale; ++j) {
-      if (mit.getColor((i * xScale * 4) + (j * yScale * 4) * width) ==
-          ofColor::white) {
+    for (int j = 0; j < height / yScale; ++j) {
+      const auto c = mit.getColor((i * xScale * 4) + (j * yScale * 4) * width);
+      if (c != ofColor::black) {
         fluid.addConstantForce(ofPoint(i * xScale, j * yScale), ofPoint(0, 0),
-                               ofFloatColor(0.5, 0.1, 0.0), 1.f);
+                               ofColor(255 - c.r, 255 - c.g, 255 - c.b), 1.f);
       }
     }
   }
@@ -73,10 +42,14 @@ void ofApp::setup() {
 
 void ofApp::update() {
   title();
+
+  fluid.setGravity(ofVec2f(ofRandom(-0.05, 0.05), ofRandom(0.03, 0.05)));
+
   fluid.update();
 }
 
 void ofApp::draw() {
+
   canvas.begin();
   fluid.draw();
   canvas.end();
@@ -88,15 +61,6 @@ void ofApp::draw() {
   invert.loadData(pix);
 
   invert.draw(0, 0);
-
-  // for (int i = 0; i <= width / 20; ++i) {
-  //   for (int j = 0; j <= height / 20; ++j) {
-  //     ofSetColor(mit.getColor((i * 20 * 4) + (j * 20 * 4) * width));
-
-  //     cout << mit.getColor((i * 20 * 4) + (j * 20 * 4) * width) << '\n';
-  //     ofDrawEllipse(i * 20, j * 20, 20, 20);
-  //   }
-  // }
 }
 
 void ofApp::title() {
