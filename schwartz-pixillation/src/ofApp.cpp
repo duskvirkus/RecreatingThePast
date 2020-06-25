@@ -8,6 +8,9 @@ void ofApp::setup() {
 
   ofSetVerticalSync(true);
 
+  gui.setup();
+  gui.add(threshold.setup("Threshold", 50, 0, 100));
+
   vector<ofVideoDevice> devices = vidGrabber.listDevices();
 
   for (size_t i = 0; i < devices.size(); i++) {
@@ -23,23 +26,51 @@ void ofApp::setup() {
   vidGrabber.setDesiredFrameRate(30);
   vidGrabber.initGrabber(640, 360);
 
-  capture.allocate(480, 360, GL_RGBA);
+  capWidth = 640;
+  capHeight = 360;
+
+  bLearnBackground = false;
+
+  colorImg.allocate(capWidth, capHeight);
+  grayImage.allocate(capWidth, capHeight);
+  grayBg.allocate(capWidth, capHeight);
+  grayDiff.allocate(capWidth, capHeight);
 }
 
 void ofApp::update() {
   title();
 
   vidGrabber.update();
+
+  if (vidGrabber.isFrameNew()) {
+    colorImg.setFromPixels(vidGrabber.getPixels());
+
+    grayImage = colorImg;
+    if (bLearnBackground == true) {
+      grayBg = grayImage;
+      bLearnBackground = false;
+    }
+
+    grayDiff.absDiff(grayBg, grayImage);
+    grayDiff.threshold(threshold);
+
+    contourFinder.findContours(grayDiff, 20, (340 * 240) / 3, 10, true);
+  }
 }
 
 void ofApp::draw() {
   ofBackground(0);
 
-  capture.begin();
-  vidGrabber.draw(0, 0, 480, 360);
-  capture.end();
+  vidGrabber.draw(0, 0, capWidth, capHeight);
 
-  capture.draw(0, 0);
+  grayImage.draw(capWidth, 0);
+  grayDiff.draw(0, capHeight);
+
+  for (int i = 0; i < contourFinder.nBlobs; i++) {
+    contourFinder.blobs[i].draw(0, capHeight);
+  }
+
+  gui.draw();
 }
 
 void ofApp::title() {
@@ -47,4 +78,8 @@ void ofApp::title() {
   titleStream << PROJECT_NAME << " - " << CREATOR
     << " - FPS: " << static_cast<int>(ofGetFrameRate());
   ofSetWindowTitle(titleStream.str());
+}
+
+void ofApp::keyPressed(int key) {
+  bLearnBackground = true;
 }
