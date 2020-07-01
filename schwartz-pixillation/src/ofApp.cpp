@@ -61,14 +61,29 @@ void ofApp::update() {
 void ofApp::draw() {
   ofBackground(0);
 
-  vidGrabber.draw(0, 0, capWidth, capHeight);
-
   grayImage.draw(capWidth, 0);
   grayDiff.draw(0, capHeight);
+  vidGrabber.draw(capWidth, capHeight, capWidth, capHeight);
 
   for (int i = 0; i < contourFinder.nBlobs; i++) {
     contourFinder.blobs[i].draw(0, capHeight);
   }
+
+  ofPushStyle();
+  ofSetRectMode(OF_RECTMODE_CENTER);
+  for (int i = 0; i < contourFinder.nBlobs; ++i) {
+    auto box = contourFinder.blobs[i].boundingRect;
+    for (int i = 0; i < 5; ++i) {
+      ofSetColor(((i + ofGetFrameNum()) & 1) != 0 ? ofColor::black : ofColor::red);
+      const float amt = ofMap(i, 0, 5, 1, 0);
+      const auto w = box.width * amt;
+      const auto h = box.height * amt;
+      const auto size = w > h ? h : w;
+      ofDrawRectangle(box.getCenter(), size, size);
+    }
+  }
+  ofSetRectMode(OF_RECTMODE_CORNER);
+  ofPopStyle();
 
   gui.draw();
 }
